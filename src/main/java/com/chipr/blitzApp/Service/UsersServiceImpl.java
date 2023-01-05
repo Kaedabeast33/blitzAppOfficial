@@ -1,7 +1,12 @@
 package com.chipr.blitzApp.Service;
 
+import com.chipr.blitzApp.DTOs.DateDto;
 import com.chipr.blitzApp.DTOs.UserDto;
+import com.chipr.blitzApp.Entities.Days;
+import com.chipr.blitzApp.Entities.Events;
 import com.chipr.blitzApp.Entities.Users;
+import com.chipr.blitzApp.Repository.DaysRepository;
+import com.chipr.blitzApp.Repository.EventsRepository;
 import com.chipr.blitzApp.Repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +23,10 @@ public class UsersServiceImpl implements UsersService {
     UsersRepository usersRepository;
     @Autowired
     PasswordEncoder passwordEncoder;
+    @Autowired
+    DaysRepository daysRepository;
+    @Autowired
+    EventsRepository eventsRepository;
 
     @Override
     public List<Users> addUser(UserDto userDto) {
@@ -33,12 +42,12 @@ public class UsersServiceImpl implements UsersService {
         List<String> response = new ArrayList<>();
         Optional<Users> user = usersRepository.findByUsername(userDto.getUsername());
         if (user.isPresent()) {
-//            if (passwordEncoder.matches(userDto.getPassword(), user.get().getPassword())) {
+            if (passwordEncoder.matches(userDto.getPassword(), user.get().getPassword())) {
                 response.add("User " + user.get().getUsername() + " Logged in Successful");
 //
-//            } else {
-//                response.add("Username or Password incorrect");
-//            }
+            } else {
+                response.add("Username or Password incorrect");
+            }
 
         } else {
             response.add("Username or Password incorrect");
@@ -74,4 +83,97 @@ public class UsersServiceImpl implements UsersService {
         return response;
     }
 
+    @Override
+    public List<String> addAvailibilityDate(DateDto dateDto, Long userId) {
+        Optional<Users> usersOptional = usersRepository.findById(userId);
+        Optional<Days> daysOptional = daysRepository.findById(dateDto.getDate());
+        List<String> response = new ArrayList<>();
+        if(usersOptional.isPresent()){
+            if(daysOptional.isEmpty()){
+                Days date = new Days(dateDto);
+                daysRepository.saveAndFlush(date);
+                usersOptional.get().addToAvailabilityDates(date);
+                response.add("User: " + usersOptional.get().getUsername()+" added availability for "+ date);
+                usersRepository.saveAndFlush(usersOptional.get());
+            }
+            else {
+                Days date = daysOptional.get();
+                usersOptional.get().addToAvailabilityDates(date);
+                response.add("User: " + usersOptional.get().getUsername()+" added availability for "+ date.getDate());
+                usersRepository.saveAndFlush(usersOptional.get());
+            }
+        }else{
+            response.add("User doesn't exist");
+        }
+        return response;
+    }
+
+    @Override
+    public List<String> deleteAvailibilityDate(DateDto dateDto, Long userId) {
+        Optional<Users> usersOptional = usersRepository.findById(userId);
+        Optional<Days> daysOptional = daysRepository.findById(dateDto.getDate());
+        List<String> response = new ArrayList<>();
+        if(usersOptional.isPresent()){
+            if(!usersOptional.get().getAvailabilityDates().contains(daysOptional.get())){
+                Days date = new Days(dateDto);
+                response.add("User: " + usersOptional.get().getUsername()+" doesn't have a date set available for "+ date.getDate());
+
+            }
+            else {
+                Days date = daysOptional.get();
+                usersOptional.get().deleteFromAvailabilityDates(date);
+                response.add("User: " + usersOptional.get().getUsername()+" removed availability for "+ date.getDate());
+                usersRepository.saveAndFlush(usersOptional.get());
+            }
+        }else{
+            response.add("User doesn't exist");
+        }
+        return response;
+    }
+
+    @Override
+    public List<String> addToEvent(Long eventId, Long userId) {
+        List<String> response = new ArrayList<>();
+        Optional<Users> usersOptional = usersRepository.findById(userId);
+        Optional<Events> eventsOptional = eventsRepository.findById(eventId);
+        if(usersOptional.isPresent()){
+            if(eventsOptional.isPresent()) {
+                if (!usersOptional.get().getEventsSet().contains(eventsOptional.get())){
+                    usersOptional.get().addToEvents(eventsOptional.get());
+                    usersRepository.saveAndFlush(usersOptional.get());
+                    response.add("event "+ eventsOptional.get().getEvent_title() + " is added");
+                }else{
+                    response.add("event is already added");
+                }
+            }else{
+                response.add("event doesn't exist");
+            }
+        }else{
+            response.add("User doesn't exist");
+        }
+        return response;
+    }
+
+    @Override
+    public List<String> deleteFromEvent(Long eventId, Long userId) {
+        List<String> response = new ArrayList<>();
+        Optional<Users> usersOptional = usersRepository.findById(userId);
+        Optional<Events> eventsOptional = eventsRepository.findById(eventId);
+        if(usersOptional.isPresent()){
+            if(eventsOptional.isPresent()) {
+                if (usersOptional.get().getEventsSet().contains(eventsOptional.get())){
+                    usersOptional.get().deleteFromEvents(eventsOptional.get());
+                    usersRepository.saveAndFlush(usersOptional.get());
+                    response.add("event "+ eventsOptional.get().getEvent_title() + " is deleted");
+                }else{
+                    response.add("event is already deleted ");
+                }
+            }else{
+                response.add("event doesn't exist");
+            }
+        }else{
+            response.add("User doesn't exist");
+        }
+        return response;
+    }
 }

@@ -1,7 +1,10 @@
 package com.chipr.blitzApp.Service;
 
+import com.chipr.blitzApp.DTOs.DateDto;
 import com.chipr.blitzApp.DTOs.EventDto;
+import com.chipr.blitzApp.Entities.Days;
 import com.chipr.blitzApp.Entities.Events;
+import com.chipr.blitzApp.Repository.DaysRepository;
 import com.chipr.blitzApp.Repository.EventsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +17,9 @@ import java.util.Optional;
 public class EventsServiceImpl implements EventsService {
     @Autowired
     EventsRepository eventsRepository;
+
+    @Autowired
+    DaysRepository daysRepository;
 
     @Override
     public List<Events> addEvent(EventDto eventDto) {
@@ -54,5 +60,56 @@ public class EventsServiceImpl implements EventsService {
         return response;
     }
 
-}
+    @Override
+    public List<String> addEventDate(DateDto date, Long eventId) {
+        List<String> response = new ArrayList<>();
+        Optional<Events> eventsOptional = eventsRepository.findById(eventId);
+        Optional<Days> dateOptional = daysRepository.findById(date.getDate());
+        if(eventsOptional.isPresent()){
+            if(dateOptional.isPresent()){
+                 if(!eventsOptional.get().getDay_set().contains(dateOptional.get())) {
+                    eventsOptional.get().addEventDates(dateOptional.get());
+                    eventsRepository.saveAndFlush(eventsOptional.get());
+                    response.add("Event "+ eventsOptional.get().getEvent_title() +" added date " + dateOptional.get().getDate());
+                }else{
+                     response.add("Event date already added");
+                 }
+            }else{
+                Days newDate = new Days(date);
+                daysRepository.saveAndFlush(newDate);
+                eventsOptional.get().addEventDates(newDate);
+                eventsRepository.saveAndFlush(eventsOptional.get());
+                response.add("Event "+ eventsOptional.get().getEvent_title() +" added date " + newDate.getDate());
+            }
+        }else{
+            response.add("Event doesn't exist");
+        }
+        return response;
+    }
+
+    @Override
+    public List<String> deleteEventDate(DateDto date, Long eventId) {
+        List<String> response = new ArrayList<>();
+        Optional<Events> eventsOptional = eventsRepository.findById(eventId);
+        Optional<Days> dateOptional = daysRepository.findById(date.getDate());
+        if(eventsOptional.isPresent()){
+            if(dateOptional.isPresent()){
+                if(eventsOptional.get().getDay_set().contains(dateOptional.get())) {
+                    eventsOptional.get().deleteEventDates(dateOptional.get());
+                    eventsRepository.saveAndFlush(eventsOptional.get());
+                    response.add("Event "+ eventsOptional.get().getEvent_title() +" deleted date " + dateOptional.get().getDate());
+                }else{
+                    response.add("Event date already deleted");
+                }
+            }else{
+                response.add("Date doesn't exist");
+            }
+        }else{
+            response.add("Event doesn't exist");
+        }
+        return response;
+    }
+    }
+
+
 

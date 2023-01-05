@@ -2,6 +2,7 @@ package com.chipr.blitzApp.DTOs;
 
 import com.chipr.blitzApp.Entities.Days;
 import com.chipr.blitzApp.Entities.Events;
+import com.chipr.blitzApp.Entities.Users;
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -18,7 +19,17 @@ public class EventDto {
     private String event_info;
 
     private Set<Days> day_set;
+
+    private Set<Users> event_users;
     //GETTERS AND SETTERS
+
+    public Set<Users> getEvent_users() {
+        return event_users;
+    }
+
+    public void setEvent_users(Set<Users> event_users) {
+        this.event_users = event_users;
+    }
 
     public Long getId() {
         return id;
@@ -46,11 +57,12 @@ public class EventDto {
     }
 
     //CONSTRUCTOR
-    public EventDto(Long id, String event_title, String event_info, Set<Days> day_set) {
+    public EventDto(Long id, String event_title, String event_info, Set<Days> day_set, Set<Users>event_users) {
         this.id = id;
         this.event_title = event_title;
         this.event_info = event_info;
         this.day_set = day_set;
+        this.event_users=event_users;
     }
 
     public EventDto() {
@@ -64,6 +76,8 @@ public class EventDto {
             this.event_title=event.getEvent_title();
         }if(event.getDay_set()!=null){
             this.day_set=event.getDay_set();
+        }if(event.getEvent_users()!=null){
+            this.event_users=event.getEvent_users();
         }
 
     }

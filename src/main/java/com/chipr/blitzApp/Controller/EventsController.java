@@ -1,6 +1,8 @@
 package com.chipr.blitzApp.Controller;
 
+import com.chipr.blitzApp.DTOs.DateDto;
 import com.chipr.blitzApp.DTOs.EventDto;
+import com.chipr.blitzApp.Entities.Days;
 import com.chipr.blitzApp.Entities.Events;
 import com.chipr.blitzApp.Repository.EventsRepository;
 import com.chipr.blitzApp.Service.EventsService;
@@ -34,5 +36,13 @@ public class EventsController {
     @PutMapping("/updateEvent/{eventId}")
     List<String> updateEvent(@PathVariable Long eventId, @RequestBody EventDto eventDto){
         return eventsService.updateEvent(eventId,eventDto);
+    }
+    @PutMapping("{eventId}/addEventDate")
+    List<String> addEventDate(@RequestBody DateDto date, @PathVariable Long eventId){
+        return eventsService.addEventDate(date,eventId);
+    }
+    @DeleteMapping("{eventId}/deleteEventDate")
+    List<String> deleteEventDate(@RequestBody DateDto date, @PathVariable Long eventId){
+        return eventsService.deleteEventDate(date,eventId);
     }
 }

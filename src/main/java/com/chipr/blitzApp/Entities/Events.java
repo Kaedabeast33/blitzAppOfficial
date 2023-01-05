@@ -28,8 +28,20 @@ public class Events {
             inverseJoinColumns = @JoinColumn(name="date_id")
     )
     private Set<Days> day_set=new HashSet<>();
+    @ManyToMany(mappedBy = "eventsSet")
+    private Set<Users>event_users=new HashSet<>();
 
     //GETTERS AND SETTERS
+
+
+    public Set<Users> getEvent_users() {
+        return event_users;
+    }
+
+    public void setEvent_users(Set<Users> event_users) {
+        this.event_users = event_users;
+    }
+
     public Long getId() {
         return id;
     }
@@ -54,13 +66,20 @@ public class Events {
     public void setDay_set(Set<Days> day_set) {
         this.day_set = day_set;
     }
+    public void addEventDates(Days date){
+        this.day_set.add(date);
+    }
+    public void deleteEventDates(Days date){
+        this.day_set.remove(date);
+    }
 
     //CONSTRUCTOR
-    public Events(Long id, String event_title, String event_info, Set<Days> day_set) {
+    public Events(Long id, String event_title, String event_info, Set<Days> day_set,Set<Users> event_users) {
         this.id = id;
         this.event_title = event_title;
         this.event_info = event_info;
         this.day_set = day_set;
+        this.event_users = event_users;
     }
     public Events() {
     }
@@ -73,6 +92,8 @@ public class Events {
             this.event_info=eventDto.getEvent_info();
         }if (eventDto.getDay_set() != null) {
             this.day_set = eventDto.getDay_set();
+        }if(eventDto.getEvent_users()!=null){
+            this.event_users=eventDto.getEvent_users();
         }
     }
 }
