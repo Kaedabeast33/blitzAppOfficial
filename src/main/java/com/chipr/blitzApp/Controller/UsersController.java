@@ -2,6 +2,7 @@ package com.chipr.blitzApp.Controller;
 
 import com.chipr.blitzApp.DTOs.DateDto;
 import com.chipr.blitzApp.DTOs.UserDto;
+import com.chipr.blitzApp.Entities.Days;
 import com.chipr.blitzApp.Entities.Users;
 import com.chipr.blitzApp.Repository.UsersRepository;
 import com.chipr.blitzApp.Service.UsersService;
@@ -10,7 +11,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("api/users")
@@ -28,15 +31,18 @@ public class UsersController {
         String passHash=passwordEncoder.encode(userDto.getPassword());
 
         userDto.setPassword(passHash);
-        usersService.addUser(userDto);
-        response.add("user Added Successfully");
-        response.add(usersService.addUser(userDto).toString());
-        response.add(userDto.getUsername() + " "+userDto.getPassword());
 
-        return response;
+
+//        response.add(usersService.addUser(userDto).toString());
+//        usersService.addUser(userDto);
+//        response.add(userDto.getUsername());
+//        response.add(userDto.getEmail());
+//        response.add("user200");
+        return usersService.addUser(userDto);
     }
     @PostMapping("/login")
     public List<String> userLogin(@RequestBody UserDto userDto){
+
         return usersService.loginUser(userDto);
     }
     @PutMapping("/updatePassword")
@@ -64,5 +70,10 @@ public class UsersController {
     @DeleteMapping("/{userId}/deleteEvent/{eventId}")
     public List<String> deleteFromEvent(@PathVariable Long userId, @PathVariable Long eventId){
         return usersService.deleteFromEvent(eventId,userId);
+    }
+    @GetMapping("{userId}/events")
+    public Collection<Days> getAvailabilityDates(@PathVariable Long userId) throws InterruptedException {
+       UserDto user= usersService.getAvailabilityDates(userId);
+        return user.getAvailabilityDates();
     }
 }

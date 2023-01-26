@@ -29,12 +29,17 @@ public class UsersServiceImpl implements UsersService {
     EventsRepository eventsRepository;
 
     @Override
-    public List<Users> addUser(UserDto userDto) {
+    public List<String> addUser(UserDto userDto) {
         Users user = new Users(userDto);
+        List<String> response = new ArrayList<>();
         if (usersRepository.findByUsername(user.getUsername()).isEmpty()) {
             usersRepository.saveAndFlush(user);
         }
-        return usersRepository.findAll();
+        response.add(user.getUsername());
+        response.add(user.getEmail());
+        response.add(user.getId().toString());
+        response.add("register200");
+        return response;
     }
 
     @Override
@@ -43,7 +48,10 @@ public class UsersServiceImpl implements UsersService {
         Optional<Users> user = usersRepository.findByUsername(userDto.getUsername());
         if (user.isPresent()) {
             if (passwordEncoder.matches(userDto.getPassword(), user.get().getPassword())) {
-                response.add("User " + user.get().getUsername() + " Logged in Successful");
+                response.add(user.get().getUsername());
+                response.add(user.get().getEmail());
+                response.add(user.get().getId().toString());
+                response.add("Login200");
 //
             } else {
                 response.add("Username or Password incorrect");
@@ -58,12 +66,12 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public List<String> updatePassword(UserDto userDto) {
         Optional<Users> usersOptional = usersRepository.findByUsername(userDto.getUsername());
-        List<String>response= new ArrayList<>();
-        if(usersOptional.isPresent()){
+        List<String> response = new ArrayList<>();
+        if (usersOptional.isPresent()) {
             usersOptional.get().setPassword(userDto.getPassword());
-            response.add("User " + usersOptional.get().getUsername()+"'s password is changed to " + userDto.getPassword());
+            response.add("User " + usersOptional.get().getUsername() + "'s password is changed to " + userDto.getPassword());
             usersRepository.saveAndFlush(usersOptional.get());
-        }else{
+        } else {
             response.add("Incorrect Credentials");
         }
         return response;
@@ -72,12 +80,12 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public List<String> updateEmail(UserDto userDto) {
         Optional<Users> usersOptional = usersRepository.findByUsername(userDto.getUsername());
-        List<String>response= new ArrayList<>();
-        if(usersOptional.isPresent()){
+        List<String> response = new ArrayList<>();
+        if (usersOptional.isPresent()) {
             usersOptional.get().setEmail(userDto.getEmail());
-            response.add("User " + usersOptional.get().getUsername()+"'s Email is changed to " + userDto.getEmail());
+            response.add("User " + usersOptional.get().getUsername() + "'s Email is changed to " + userDto.getEmail());
             usersRepository.saveAndFlush(usersOptional.get());
-        }else{
+        } else {
             response.add("Incorrect Credentials");
         }
         return response;
@@ -88,21 +96,20 @@ public class UsersServiceImpl implements UsersService {
         Optional<Users> usersOptional = usersRepository.findById(userId);
         Optional<Days> daysOptional = daysRepository.findById(dateDto.getDate());
         List<String> response = new ArrayList<>();
-        if(usersOptional.isPresent()){
-            if(daysOptional.isEmpty()){
+        if (usersOptional.isPresent()) {
+            if (daysOptional.isEmpty()) {
                 Days date = new Days(dateDto);
                 daysRepository.saveAndFlush(date);
                 usersOptional.get().addToAvailabilityDates(date);
-                response.add("User: " + usersOptional.get().getUsername()+" added availability for "+ date);
+                response.add("User: " + usersOptional.get().getUsername() + " added availability for " + date);
                 usersRepository.saveAndFlush(usersOptional.get());
-            }
-            else {
+            } else {
                 Days date = daysOptional.get();
                 usersOptional.get().addToAvailabilityDates(date);
-                response.add("User: " + usersOptional.get().getUsername()+" added availability for "+ date.getDate());
+                response.add("User: " + usersOptional.get().getUsername() + " added availability for " + date.getDate());
                 usersRepository.saveAndFlush(usersOptional.get());
             }
-        }else{
+        } else {
             response.add("User doesn't exist");
         }
         return response;
@@ -113,19 +120,18 @@ public class UsersServiceImpl implements UsersService {
         Optional<Users> usersOptional = usersRepository.findById(userId);
         Optional<Days> daysOptional = daysRepository.findById(dateDto.getDate());
         List<String> response = new ArrayList<>();
-        if(usersOptional.isPresent()){
-            if(!usersOptional.get().getAvailabilityDates().contains(daysOptional.get())){
+        if (usersOptional.isPresent()) {
+            if (!usersOptional.get().getAvailabilityDates().contains(daysOptional.get())) {
                 Days date = new Days(dateDto);
-                response.add("User: " + usersOptional.get().getUsername()+" doesn't have a date set available for "+ date.getDate());
+                response.add("User: " + usersOptional.get().getUsername() + " doesn't have a date set available for " + date.getDate());
 
-            }
-            else {
+            } else {
                 Days date = daysOptional.get();
                 usersOptional.get().deleteFromAvailabilityDates(date);
-                response.add("User: " + usersOptional.get().getUsername()+" removed availability for "+ date.getDate());
+                response.add("User: " + usersOptional.get().getUsername() + " removed availability for " + date.getDate());
                 usersRepository.saveAndFlush(usersOptional.get());
             }
-        }else{
+        } else {
             response.add("User doesn't exist");
         }
         return response;
@@ -136,19 +142,19 @@ public class UsersServiceImpl implements UsersService {
         List<String> response = new ArrayList<>();
         Optional<Users> usersOptional = usersRepository.findById(userId);
         Optional<Events> eventsOptional = eventsRepository.findById(eventId);
-        if(usersOptional.isPresent()){
-            if(eventsOptional.isPresent()) {
-                if (!usersOptional.get().getEventsSet().contains(eventsOptional.get())){
+        if (usersOptional.isPresent()) {
+            if (eventsOptional.isPresent()) {
+                if (!usersOptional.get().getEventsSet().contains(eventsOptional.get())) {
                     usersOptional.get().addToEvents(eventsOptional.get());
                     usersRepository.saveAndFlush(usersOptional.get());
-                    response.add("event "+ eventsOptional.get().getEvent_title() + " is added");
-                }else{
+                    response.add("event " + eventsOptional.get().getEvent_title() + " is added");
+                } else {
                     response.add("event is already added");
                 }
-            }else{
+            } else {
                 response.add("event doesn't exist");
             }
-        }else{
+        } else {
             response.add("User doesn't exist");
         }
         return response;
@@ -159,21 +165,30 @@ public class UsersServiceImpl implements UsersService {
         List<String> response = new ArrayList<>();
         Optional<Users> usersOptional = usersRepository.findById(userId);
         Optional<Events> eventsOptional = eventsRepository.findById(eventId);
-        if(usersOptional.isPresent()){
-            if(eventsOptional.isPresent()) {
-                if (usersOptional.get().getEventsSet().contains(eventsOptional.get())){
+        if (usersOptional.isPresent()) {
+            if (eventsOptional.isPresent()) {
+                if (usersOptional.get().getEventsSet().contains(eventsOptional.get())) {
                     usersOptional.get().deleteFromEvents(eventsOptional.get());
                     usersRepository.saveAndFlush(usersOptional.get());
-                    response.add("event "+ eventsOptional.get().getEvent_title() + " is deleted");
-                }else{
+                    response.add("event " + eventsOptional.get().getEvent_title() + " is deleted");
+                } else {
                     response.add("event is already deleted ");
                 }
-            }else{
+            } else {
                 response.add("event doesn't exist");
             }
-        }else{
+        } else {
             response.add("User doesn't exist");
         }
         return response;
+    }
+
+    @Override
+    public UserDto getAvailabilityDates(Long userId){
+        Optional<Users> user = usersRepository.findById(userId);
+        List<String> response = new ArrayList<>();
+        return new UserDto(null,null,null,null,user.get().getAvailabilityDates(),null);
+
+
     }
 }

@@ -1,6 +1,7 @@
 package com.chipr.blitzApp.Entities;
 
 import com.chipr.blitzApp.DTOs.DateDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -12,8 +13,10 @@ public class Days {
     @Id
     private String date;
     @Column
+    @JsonIgnore
     @ManyToMany(mappedBy = "day_set")
     private Set<Events> event_set=new HashSet<>();
+    @JsonIgnore
     @ManyToMany(mappedBy = "availabilityDates")
     private Set<Users>day_users = new HashSet<>();
 
