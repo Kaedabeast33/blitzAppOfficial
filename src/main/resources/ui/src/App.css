@@ -1,0 +1,11 @@
+
+.backdrop-gradient{
+    background: rgb(36,0,0);
+background: linear-gradient(180deg, rgba(36,0,0,1) 0%, rgba(223,13,13,1) 76%, rgba(9,180,214,1) 100%);;
+}
+.border-gradient:hover{
+    border-width: 2px;
+    border-style:solid;
+    border-image: linear-gradient(to right, rgba(36,0,0,1) 0%, rgba(223,13,13,1) 76%, rgba(9,180,214,1) 100%);;
+}
+
