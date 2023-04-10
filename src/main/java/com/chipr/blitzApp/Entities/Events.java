@@ -63,6 +63,7 @@ public class Events {
     public Set<Days> getDay_set() {
         return day_set;
     }
+
     public void setDay_set(Set<Days> day_set) {
         this.day_set = day_set;
     }

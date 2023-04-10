@@ -2,16 +2,15 @@ package com.chipr.blitzApp.Controller;
 
 import com.chipr.blitzApp.DTOs.DateDto;
 import com.chipr.blitzApp.DTOs.EventDto;
-import com.chipr.blitzApp.Entities.Days;
 import com.chipr.blitzApp.Entities.Events;
 import com.chipr.blitzApp.Repository.EventsRepository;
 import com.chipr.blitzApp.Service.EventsService;
-import com.chipr.blitzApp.Service.EventsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/events")
@@ -44,5 +43,9 @@ public class EventsController {
     @DeleteMapping("{eventId}/deleteEventDate")
     List<String> deleteEventDate(@RequestBody DateDto date, @PathVariable Long eventId){
         return eventsService.deleteEventDate(date,eventId);
+    }
+    @GetMapping("{eventId}")
+    List<String> getEventById(@PathVariable Long eventId){
+        return eventsService.getFirstEventDateById(eventId);
     }
 }

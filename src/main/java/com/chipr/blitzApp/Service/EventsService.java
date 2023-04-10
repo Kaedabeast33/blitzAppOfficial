@@ -19,4 +19,6 @@ public interface EventsService {
     List<String> addEventDate(DateDto date, Long eventId);
 
     List<String> deleteEventDate(DateDto date, Long eventId);
+
+    List<String> getFirstEventDateById(Long eventId);
 }

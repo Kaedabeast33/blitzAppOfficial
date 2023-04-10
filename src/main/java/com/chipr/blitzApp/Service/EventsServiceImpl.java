@@ -109,7 +109,25 @@ public class EventsServiceImpl implements EventsService {
         }
         return response;
     }
+
+    @Override
+    public List<String> getFirstEventDateById(Long eventId) {
+        List<String> response = new ArrayList<>();
+       if( eventsRepository.findById(eventId).isPresent()){
+           Events event =eventsRepository.findById(eventId).get();
+           for(Days days:event.getDay_set()){
+               response.add(days.getDate());
+           }
+           for(String dates: response){
+             String[] datesArray=  dates.split(" ",5);
+
+           }
+       }else{
+           response.add("no event with this id");
+       }
+        return response;
     }
+}
 
 
 
